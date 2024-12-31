@@ -24,4 +24,4 @@ RUN useradd runtime
 USER runtime
 
 # Run the app by dynamically finding the JAR file in the target directory
-CMD ["sh", "-c", "java -jar target/app.jar"]
+ENTRYPOINT ["sh", "-c", "java -jar target/app.jar"]
