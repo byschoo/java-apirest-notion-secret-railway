@@ -1,6 +1,6 @@
 # Use the Eclipse alpine official image
 # https://hub.docker.com/_/eclipse-temurin
-FROM eclipse-temurin:23.0.1_11-jdk-ubi9-minimal
+FROM eclipse-temurin:23.0.1_11-jdk-ubi9-minimal as Build
 
 # Create and change to the app directory
 WORKDIR /root
@@ -11,5 +11,17 @@ COPY . ./
 # Build the app.
 RUN ./mvnw -DoutputFile=target/mvn-dependency-list.log -B -DskipTests clean dependency:list install
 
+RUN mv -f target/*jar app.jar
+
+FROM eclipse-temurin:23.0.1_11-jre-ubi9-minimal
+
+ARG PORT
+ENV PORT=${PORT}
+
+COPY --from=build /root/app.jar .
+
+RUN useradd runtime
+USER runtime
+
 # Run the app by dynamically finding the JAR file in the target directory
-CMD ["sh", "-c", "java -jar target/*.jar"]
+CMD ["sh", "-c", "java -jar target/app.jar"]
